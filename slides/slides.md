@@ -1,4 +1,4 @@
-# Touch and Learn Rails Authentication
+# Build and Learn Rails Authentication
 ### Ryo Kajiwara (sylph01)
 ### 2021/10/21 @ Kaigi on Rails 2021
 
