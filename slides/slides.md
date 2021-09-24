@@ -225,6 +225,16 @@ Railsでは `has_secure_password` というモデルのメソッドがbcryptを�
 
 ----
 
+# ロックアウト(ブルートフォース攻撃対策)
+
+- 以下の性質を持つカウンタを用意
+    - 不正なログイン試行でカウントが1増えて
+    - 正常なログインで0に戻る
+- 一定以上のカウントを持っている場合、最終ログイン時間から一定時間が経過していない場合パスワードがあっていても自動的にログインに失敗する
+    - 試行回数に対して指数でログイン不可能時間を設ける[exponential backoff algorithm](https://devcentral.f5.com/s/articles/implementing-the-exponential-backoff-algorithm-to-thwart-dictionary-attacks)という方式が一般的
+
+----
+
 # 実際に作ってみた
 
 `https://github.com/sylph01/touch-and-learn-authentication/`
