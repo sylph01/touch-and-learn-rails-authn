@@ -33,12 +33,12 @@
 
 # 若干真面目な自己紹介
 
-- やせいのプログラマ
-    - 要するにフリーランスです
+- やせいのプログラマ(要するにフリーランス)
 - W3C, IETFなどでセキュリティ寄りのプロトコルの標準化のお手伝いをしていました
     - HTTPS in Local Network, Messaging Layer Securityなど
 - 次世代OAuthの薄い本を書きました
     - 現バージョンは今は頒布中止していますが新バージョン出したい
+- Kaigi on Rails 1週間前に松山に引っ越しました
 
 ![bg fit right:33%](ogwbook.png)
 
