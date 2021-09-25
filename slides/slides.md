@@ -297,9 +297,9 @@ Railsでは `has_secure_password` というモデルのメソッドがbcryptを�
 
 # ライブラリの比較
 
-- Devise
-- Sorcery
-- Authlogic
-- Rodauth
+- [Devise](https://github.com/heartcombo/devise)
+- [Sorcery](https://github.com/Sorcery/sorcery)
+- [Authlogic](https://github.com/binarylogic/authlogic)
+- [Rodauth](https://github.com/jeremyevans/rodauth)
 
 を対象に比較をしていきます。
