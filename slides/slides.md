@@ -112,6 +112,8 @@
 
 # 認証を作ってみる
 
+<!-- やったことある人は「どこまで気にして作れたか」を思い出しながら聞いていただけると幸いです -->
+
 ----
 
 # 認証/認可についての概念
@@ -234,7 +236,7 @@ bcryptでは出力される文字列がsaltとハッシュ値の組を結合し�
 
 # `has_secure_password`
 
-Railsでは `has_secure_password` というモデルのメソッドがbcryptを利用してパスワードハッシュ化の面倒を見てくれる。
+Railsでは `has_secure_password` というモデルのメソッドがbcryptを利用してパスワードハッシュ化の面倒を見てくれる。パスワード入力の確認も面倒を見てくれる。便利。
 
 ソースは `activemodel/lib/active_model/secure_password.rb` 。
 
