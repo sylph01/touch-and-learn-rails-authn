@@ -361,3 +361,223 @@ Railsでは `has_secure_password` というモデルのメソッドがbcryptを�
 - [Rodauth](https://github.com/jeremyevans/rodauth)
 
 を対象に比較をしていきます。
+
+発表者の経験としては「Deviseはproductionで使ったことがある」「あとは今回調べた」程度です。
+
+----
+
+# Devise (1)
+
+- Wardenの上に作られている
+    - Wardenとは: 認証用 rack middleware
+    - session middlewareの後に入って、sessionの情報を使って認証状態を確かめたり認証アクションをトリガーしたりする
+
+----
+
+# 超忙しい人のためのWarden
+
+`env['warden'].authenticated?` - 認証済みであるかを確かめる
+
+`env['warden'].authenticate(:password)` - `:password` strategyで認証を行う。実際の認証は各々定義するstrategyの中で行う
+
+成功したら `env['warden'].user` にuser objectが入ってくる
+
+認証エラー時は `throw(:warden)` でWardenの例外を投げる
+
+----
+
+# Devise (2)
+
+Deviseのstrategyは `lib/devise/strategies` 以下にある。パスワード認証は[DatabaseAuthenticatable](https://github.com/heartcombo/devise/blob/5d5636f03ac19e8188d99c044d4b5e90124313af/lib/devise/strategies/database_authenticatable.rb#L9-L26) strategyで実装されている。
+
+コントローラーで用いる `signed_in?`, `sign_in`, `sign_out` などは [`Devise::Controllers::SignInOut`](https://github.com/heartcombo/devise/blob/5d5636f03ac19e8188d99c044d4b5e90124313af/lib/devise/controllers/sign_in_out.rb#L7) で実装されている。Wardenの `authenticate?` や `set_user` や `logout` が使われていることがわかる。
+
+----
+
+# Devise (3)
+
+Routesに `devise_for :users` を書くとそのUserが対応しているDeviseのモジュールに応じてDeviseの提供するcontrollerへのrouteが設定される。
+
+ControllerのアクションをカスタマイズしたいときにはDeviseの提供するcontrollerをそのまま使いたくない。**多分これがDeviseを嫌う一番の理由か？**
+
+<!-- 一方、基本機能を使うだけならDeviseのcontrollerで十分に事足りるので楽。カスタム要件少ないといいですね… -->
+
+----
+
+# Sorcery
+
+- **code generationを可能な限り使わない**、シンプルに切り詰めた認証ライブラリ
+    - Deviseではデフォルトから離れたことをしようと思うとコントローラーを継承したりoverrideしたりしないといけない
+    - Sorceryでは**ライブラリのメソッドを自分のMVCコードの中で使う**
+        - ただし自己責任の部分が増える
+- 設定はInitializerにまとまっている
+    - コード中で `sorcery_config` を取る動作がよく見られるのはこれ
+- 暗号コードはAuthlogicをベースにしている
+- パスワードの**暗号化**が可能
+    - at your own risk...
+
+----
+
+```ruby
+require_login
+login(email, password, remember_me = false)
+auto_login(user)
+logout
+logged_in?
+current_user
+redirect_back_or_to
+@user.external?
+@user.active_for_authentication?
+@user.valid_password?('secret')
+User.authenticates_with_sorcery!
+```
+
+(GitHubのreadmeより)
+
+パスワード認証だけならメソッドは**11個！**
+
+<!-- Sorcery, more like Instant, huh? -->
+
+----
+
+# Authlogic
+
+- **Sessionオブジェクトを中心に据えた**認証ライブラリ
+    - 他のライブラリではログインセッションが明示的にオブジェクトで表されないことに注意
+- モデルに `acts_as_authentic` と書くと機能が有効化される
+- 他では対応していない外部認証プロバイダ(OpenID, LDAP, PAM, x509)に対応できる
+- generatorがない
+    - モデルのセットアップ時にREADMEにあるmigrationから必要な機能分を選んで手書きする
+
+<!-- acts_as_hoge, Rails 2とか3時代の香りがしますね -->
+
+----
+
+```ruby
+UserSession.create(:login => "bjohnson", :password => "my password", :remember_me => true)
+
+session = UserSession.new(:login => "bjohnson", :password => "my password", :remember_me => true)
+session.save
+
+session = UserSession.find
+
+session.destroy
+```
+
+(GitHubのreadmeより抜粋)
+
+<!--
+- createはnew -> saveと同じ。1行目 = 2行目 + 3行目
+- session.saveでセッションを保存し有効化する。この中でCookieへの値のセットが行われる
+- findはrememberの際に使う。セッションの中身から永続化されているsessionを取ってくる
+- destroyでログアウト
+-->
+
+----
+
+# Rodauth (1)
+
+- "Ruby's most advanced authentication framework"の名に恥じない**圧倒的高機能**
+    - WebAuthn、ワンタイムパスワード、SMS、JWTのサポート
+    - データベース関数によるパスワードハッシュへのアクセス
+    - HMACを使った"password pepper"の徹底
+- Rails/ActiveRecordを前提としていない
+    - RodaとSequelで作られている
+    - が**Railsでの利用方法はそんなに自明ではない**
+
+----
+
+# Rodauth (2): データベース関数の利用
+
+- 普通のRailsアプリではアプリを実行するユーザーがパスワードハッシュ値にアクセスできる
+- 通常のアプリユーザーとパスワードハッシュ値にアクセスできるユーザーを分離
+    - **パスワードハッシュ値をアプリに見せることなく**値の設定や比較を行うデータベース関数を定義
+    - アプリユーザーはデータベース関数を利用するだけ
+- データベースの権限昇格が発生しない限りパスワードハッシュが漏れることがない
+
+----
+
+# Rodauth (3): password pepperの徹底
+
+`hmac_secret` を設定することで、以下の値(p.29で説明した仕組み)の保存時にHMACが適用される（→共通のsecretを使う"password pepper"）。
+
+- Eメールで送信するtoken
+- rememberで使用するtoken
+
+ワンタイムパスワードで使用するトークンはユーザーに提示されるキーにHMACが適用される。
+
+`hmac_secret` をメモリ上にのみ存在させることで攻撃者はハッシュ(HMAC)値の計算に用いる関数を知ることができない。
+
+----
+
+# 外部認証プロバイダ利用
+
+- DeviseはOmniAuthが利用できる
+- Authlogicはプラグインが複数ある
+    - レガシーな認証方式に対してもプラグインがある
+    - RodauthでもLDAPは対応している
+- SorceryはExternalプラグインというのが同梱されている
+- Rodauthは見る限りまだ？
+
+----
+
+# おまけ: ハッシュ済みパスワードのカラム名
+
+- Deviseは `encrypted_password`
+    - 一般にハッシュ化した値をencryptedであるとは言わない
+- Sorcery, Authlogicは `crypted_password`
+    - そもそも暗号化済みを指す語は "crypted" ではない
+- Rodauthは `password_digest`
+    - ハッシュ化した値のことを "digest" と呼ぶのは正式な用法
+    - `has_secure_password` で実装した場合も `password_digest`
+
+----
+
+# 多分こういう使い分けになる
+
+- Rails/ActiveRecordに縛られないものが欲しい: Rodauth
+- とにかく普通のパスワード認証＋αをさくっと作りたい: Devise
+- 認証周りにたくさんカスタムコードがあって細かく制御したい: Sorcery, Authlogic
+- 外部認証プロバイダへの移行がありそう: 今のところRodauth以外
+    - レガシー外部認証方式はAuthlogicに一日の長がある
+- ほぼ初期設定でとにかくセキュアにしたい: Rodauthが有利か？
+    - 他がinsecureであるとは言ってないことに注意
+
+----
+
+# まとめ
+
+- パスワード認証とその付随技術の実装の注意点を紹介しました
+- 主な認証ライブラリの特徴とその使い分けを紹介しました
+
+----
+
+# Welcome to **Authentication Hell**
+
+## (また今年も沼に人を誘ってしまった…)
+
+----
+
+# Questions / Comments?
+## Send them to `@s01`
+## or see you in the Q&A session!
+
+----
+
+# おまけ: Further Reading
+
+- デジタルアイデンティティの考え方そのものについて
+    - [『デジタルアイデンティティー 経営者が知らないサイバービジネスの核心』崎村夏彦](https://www.amazon.co.jp/dp/4296109901)
+- 暗号技術と認証技術
+    - [『図解即戦力 暗号と認証のしくみと理論がこれ1冊でしっかりわかる教科書』光成滋生](https://gihyo.jp/book/2021/978-4-297-12307-9)
+    - [『暗号技術のすべて』IPUSIRON](https://www.shoeisha.co.jp/book/detail/9784798148816)
+
+----
+
+# おまけ: 時間が足りなくて話せなかったことのメモ
+
+- ハッシュの衝突耐性について: [過去に記事書きました](https://d.s01.ninja/entry/20171207/1512615600)
+- secure string comparison (timing-safe comparison)
+    - 「前から順に一致判定して途中で打ち切る」方法では時間差を測定することで情報量の漏れが発生する
+- セッションハイジャックの対策
+    - HTTPSを使おう、`Secure`かつ`HttpOnly`のCookieを使おう
