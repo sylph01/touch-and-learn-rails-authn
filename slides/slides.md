@@ -9,6 +9,8 @@
 
 ![](frame.png)
 
+<!-- こちらのURLはTweetしますが、内容多めでいつもの「超高速で沼が駆け抜ける」スタイルなので、並列して開くことをおすすめします。 -->
+
 ----
 
 # 誰？
@@ -478,6 +480,7 @@ session.destroy
 # Rodauth (1)
 
 - "Ruby's most advanced authentication framework"の名に恥じない**圧倒的高機能**
+    - 暗号技術ファンとして素直に感心する
     - WebAuthn、ワンタイムパスワード、SMS、JWTのサポート
     - データベース関数によるパスワードハッシュへのアクセス
     - HMACを使った"password pepper"の徹底
