@@ -7,11 +7,28 @@
   <span style="border: 2px green solid; padding: 2px"><strong><%= flash[:notice] %></strong></span>
 <% end %>
 
+<% if @active_user %>
+  <p>Logged in as <%= @active_user.display_name %></p>
+<% end %>
+
+<h2>Password authentication</h2>
+
 <%= form_tag login_path, method: 'post' do %>
   <%= label_tag :email, "Email:" %> <%= text_field_tag :email %> <br />
   <%= label_tag :password, "Password: " %> <%= password_field_tag :password %><br />
   <%= submit_tag "Submit" %>
 <% end %>
+
+<hr />
+
+<h2>Email authentication</h2>
+
+<%= form_tag send_email_auth_path, method: 'post' do %>
+  <%= label_tag :email, "Email:" %> <%= text_field_tag :email %> <br />
+  <%= submit_tag "Submit" %>
+<% end %>
+
+<hr />
 
 <p>
 <%= link_to "protected", protected_path %>

@@ -1,7 +1,7 @@
 require 'digest'
 
 class PagesController < ApplicationController
-  before_action :remember
+  before_action :remember, :set_active_user
 
   def root
     render
@@ -32,6 +32,12 @@ class PagesController < ApplicationController
           @user.forget_remember_token
         end
       end
+    end
+  end
+
+  def set_active_user
+    if session[:user]
+      @active_user = User.find(session[:user]["id"])
     end
   end
 end

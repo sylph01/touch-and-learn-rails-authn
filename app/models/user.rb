@@ -30,6 +30,20 @@ class User < ApplicationRecord
     save
   end
 
+  def set_email_auth_token
+    @token = SecureRandom.alphanumeric(64)
+    self.email_auth_token = Digest::SHA256.hexdigest(@token)
+    self.email_auth_available_until = Time.now + 30.minutes
+    save
+    @token
+  end
+
+  def forget_email_auth_token
+    self.email_auth_token = nil
+    self.email_auth_available_until = nil
+    save
+  end
+
   def count_missed_password_attempt
     self.missed_password_attempts = self.missed_password_attempts + 1
     logger.debug("[count_missed_password_attempt] User #{self.id} missed #{self.missed_password_attempts} attempts")
