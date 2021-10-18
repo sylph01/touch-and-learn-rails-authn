@@ -21,11 +21,16 @@ class PagesController < ApplicationController
   def remember
     if !session[:user] && cookies[:remember_token]
       @user = User.find_by_remember_token(Digest::SHA256.hexdigest(cookies[:remember_token]))
-      if @user && Time.now < @user.remember_token_valid_until
-        # log in user
-        session[:user] = @user
-        # then display flash
-        flash[:notice] = "Welcome back, #{@user.display_name}!"
+      if @user
+        if Time.now < @user.remember_token_valid_until
+          # log in user
+          session[:user] = @user
+          # then display flash
+          flash[:notice] = "Welcome back, #{@user.display_name}!"
+        else
+          # invalidate token by forgetting the value
+          @user.forget_remember_token
+        end
       end
     end
   end

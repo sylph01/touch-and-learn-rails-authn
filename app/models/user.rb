@@ -23,4 +23,10 @@ class User < ApplicationRecord
     save
     @token
   end
+
+  def forget_remember_token
+    self.remember_token = nil
+    self.remember_token_valid_until = nil
+    save
+  end
 end
