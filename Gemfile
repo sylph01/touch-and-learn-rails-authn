@@ -56,3 +56,6 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'bcrypt'
+
+gem "letter_opener_web", "~> 1.0", group: :development
+gem 'rexml'

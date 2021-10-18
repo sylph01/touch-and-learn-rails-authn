@@ -5,4 +5,6 @@ Rails.application.routes.draw do
   post '/logout', to: "login#logout", as: 'logout'
 
   root to: "pages#root"
+
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 end
