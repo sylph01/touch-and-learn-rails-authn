@@ -3,6 +3,9 @@
 <% if flash[:alert] %>
   <span style="border: 2px red solid; padding: 2px"><strong><%= flash[:alert] %></strong></span>
 <% end %>
+<% if flash[:notice] %>
+  <span style="border: 2px green solid; padding: 2px"><strong><%= flash[:notice] %></strong></span>
+<% end %>
 
 <%= form_tag login_path, method: 'post' do %>
   <%= label_tag :email, "Email:" %> <%= text_field_tag :email %> <br />
@@ -12,4 +15,7 @@
 
 <p>
 <%= link_to "protected", protected_path %>
+<% if logged_in? %>
+  / <%= link_to "logout", logout_path, method: :post %>
+<% end %>
 </p>

@@ -8,4 +8,9 @@ class LoginController < ApplicationController
       redirect_to root_url, alert: 'Email or password is incorrect.'
     end
   end
+
+  def logout
+    reset_session
+    redirect_to root_url, notice: 'Logged out.'
+  end
 end
