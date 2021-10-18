@@ -29,4 +29,24 @@ class User < ApplicationRecord
     self.remember_token_valid_until = nil
     save
   end
+
+  def count_missed_password_attempt
+    self.missed_password_attempts = self.missed_password_attempts + 1
+    logger.debug("[count_missed_password_attempt] User #{self.id} missed #{self.missed_password_attempts} attempts")
+    save
+    set_lockout_period
+  end
+
+  def reset_missed_password_attempts
+    self.locked_until = nil
+    self.missed_password_attempts = 0
+    save
+  end
+
+  private
+  def set_lockout_period
+    self.locked_until = Time.now + (2 ** (missed_password_attempts - 1)).seconds
+    logger.debug("[set_lockout_period] User #{self.id} is locked until #{self.locked_until}")
+    save
+  end
 end

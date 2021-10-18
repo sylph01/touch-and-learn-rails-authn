@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_18_094253) do
+ActiveRecord::Schema.define(version: 2021_10_18_103757) do
 
   create_table "users", force: :cascade do |t|
     t.string "email"
@@ -20,6 +20,8 @@ ActiveRecord::Schema.define(version: 2021_10_18_094253) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "remember_token"
     t.datetime "remember_token_valid_until"
+    t.datetime "locked_until"
+    t.integer "missed_password_attempts", default: 0
   end
 
 end
