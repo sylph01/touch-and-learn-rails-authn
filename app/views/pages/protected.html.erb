@@ -1,1 +1,9 @@
 <h1>protected page of build-and-learn-rails-authentication</h1>
+
+<% if flash[:notice] %>
+  <span style="border: 2px green solid; padding: 2px"><strong><%= flash[:notice] %></strong></span>
+<% end %>
+
+<p>
+<%= link_to 'home', root_url %>
+</p>
