@@ -44,6 +44,20 @@ class User < ApplicationRecord
     save
   end
 
+  def set_password_reset_token
+    @token = SecureRandom.alphanumeric(64)
+    self.password_reset_token = Digest::SHA256.hexdigest(@token)
+    self.password_reset_available_until = Time.now + 30.minutes
+    save
+    @token
+  end
+
+  def forget_password_reset_token
+    self.password_reset_token = nil
+    self.password_reset_available_until = nil
+    save
+  end
+
   def count_missed_password_attempt
     self.missed_password_attempts = self.missed_password_attempts + 1
     logger.debug("[count_missed_password_attempt] User #{self.id} missed #{self.missed_password_attempts} attempts")
