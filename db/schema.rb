@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_18_122752) do
+ActiveRecord::Schema.define(version: 2021_10_21_112554) do
 
   create_table "users", force: :cascade do |t|
     t.string "email"
@@ -24,6 +24,8 @@ ActiveRecord::Schema.define(version: 2021_10_18_122752) do
     t.integer "missed_password_attempts", default: 0
     t.string "email_auth_token"
     t.datetime "email_auth_available_until"
+    t.string "password_reset_token"
+    t.datetime "password_reset_available_until"
   end
 
 end

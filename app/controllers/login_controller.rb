@@ -55,6 +55,46 @@ class LoginController < ApplicationController
     end
   end
 
+  def send_password_reset
+    @user = User.find_by_email(params[:email])
+    if @user && Time.now
+      @token = @user.set_password_reset_token
+      # TODO: this logger entry should be deleted in production
+      logger.debug("email auth token of user #{@user} is #{@token}")
+      UserMailer.password_reset(@user.email, @token).deliver_now
+    end
+    # say that mail is sent, even if user with specified address does not exist
+    redirect_to root_url, notice: 'Password reset link is sent to your email address.'
+  end
+
+  def password_reset
+    @token = params[:token]
+    @user = User.find_by_password_reset_token(Digest::SHA256.hexdigest(@token))
+    if @user && Time.now < @user.password_reset_available_until
+      render :password_reset
+    else
+      redirect_to root_url, alert: 'Invalid token.'
+    end
+  end
+
+  def do_password_reset
+    @token = params[:token]
+    @user = User.find_by_password_reset_token(Digest::SHA256.hexdigest(@token))
+    if @user && Time.now < @user.password_reset_available_until
+      if params[:password] == params[:password_confirmation]
+        @user.forget_password_reset_token
+        @user.password = params[:password]
+        @user.save
+        redirect_to root_url, alert: 'Password has been reset. Please login with your new password.'
+      else
+        flash[:alert] = 'Password inputs did not match.'
+        render :password_reset
+      end
+    else
+      redirect_to root_url, alert: 'Invalid token.'
+    end
+  end
+
   private
   def log_user_in
     session[:user] = @user
