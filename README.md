@@ -52,3 +52,4 @@ User.create(
 - Eメール認証: `388be28b6f13f6958f2e086819b33b3dc0ab03d6`
   - `d0ebf52d3ec01928ef8fe22d64ac6d5c85f88ea5`: 期限のチェックが漏れていたのの追加
 - パスワードリセット: `bd574b82a133247d95ab7fb730e2b0f831427058`
+- Time-based OTP: 間に合わなかった…
