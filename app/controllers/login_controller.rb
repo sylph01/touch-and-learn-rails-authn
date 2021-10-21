@@ -46,7 +46,7 @@ class LoginController < ApplicationController
   def email_auth
     token = params[:token]
     @user = User.find_by_email_auth_token(Digest::SHA256.hexdigest(token))
-    if @user
+    if @user && Time.now < @user.email_auth_available_until
       log_user_in
       @user.forget_email_auth_token
       redirect_to protected_url, notice: "Login from Email successful. Hello, #{@user.display_name}!"
