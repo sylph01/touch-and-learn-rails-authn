@@ -6,6 +6,26 @@
 
 実際の商用アプリケーションでこのコードを流用したことによって生じた損害の責任は負いかねます。
 
+## スライドのビルド
+
+スライドは[Marp](https://marp.app/)を使ってMarkdownで作成しています。実際に発表に使ったスライドと同等のものを得るには、
+
+```
+cd slides
+yarn
+npx marp slides.md
+```
+
+とすればHTMLファイルを得ることができます。PDFファイルを得る場合は最後のコマンドを
+
+```
+npx marp slides.md --pdf --allow-local-files
+```
+
+とします。
+
+[SpeakerDeckにPDF版をアップロードしてあります。](https://speakerdeck.com/sylph01/build-and-learn-rails-authentication)
+
 ## 動作にあたって
 
 Rails consoleからユーザーを作成してください。
